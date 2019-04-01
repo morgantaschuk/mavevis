@@ -17,16 +17,20 @@ $ docker pull jweile/mavevis:latest
 #Assuming we want to map the web interface to port 80:
 $ docker run -t -p 80:80 --name mavevis jweile/mavevis:latest
 ```
+Then go to [http://localhost:80](http://localhost:80). While the basic functionality is available immediately, after you start the container up it syncs with the database for about two hours.
 
 If you insist on building the image from scratch, you can check out the git repo, and use the provided make file:
 
 ```bash
 $ git clone https://github.com/VariantEffect/mavevis.git
-$ cd docker
+$ cd mavevis/docker
 $ make build
 ```
 
-## RestFul service
+The makefile has other functions for running, cleaning, and debugging the container. See the [makefile](docker/makefile) for more details.
+
+
+## RESTful service
 A detailed manual of the webservice can be found [here](http://vis.varianteffect.org/help.html).
 
 ## R-package
@@ -55,32 +59,34 @@ At the most basic level, MaveVis is available as an R-package, with the followin
 #### Ubuntu/Debian/etc:
 
 ```bash
-#Use apt to install meta-dependencies
-$ sudo apt install r-base wget g++ make libcurl4-openssl-dev libssl-dev \
+# Use apt to install meta-dependencies
+sudo apt install r-base wget g++ make libcurl4-openssl-dev libssl-dev \
     libxml2 libxml2-dev libjson-c-dev dssp clustalo
 
-#Download and build FreeSASA
-$ wget https://github.com/mittinatten/freesasa/releases/download/2.0.2/freesasa-2.0.2.tar.gz
-$ tar xzf freesasa-2.0.2.tar.gz
-$ cd freesasa-2.0.2
-$ ./configure --disable-xml
-$ make
-$ sudo make install
+# Download and build FreeSASA
+wget https://github.com/mittinatten/freesasa/releases/download/2.0.2/freesasa-2.0.2.tar.gz
+tar xzf freesasa-2.0.2.tar.gz
+cd freesasa-2.0.2
+./configure --disable-xml
+make
+sudo make install
 
-#Clean-up build directory
-$ cd ..
-$ rm -r freesasa*
+# Clean-up build directory
+cd ..
+rm -r freesasa*
+```
 
-#Install R-packages
-$ R
-> install.packages("devtools")
-> library(devtools)
-> install_github("jweile/yogitools")
-> install_github("jweile/cgir")
-> install_github("VariantEffect/hgvsParseR")
-> install_github("VariantEffect/rapimave")
-> install_github("VariantEffect/mavevis")
-> q()
+Install R-packages
+
+```R
+install.packages("devtools")
+library(devtools)
+install_github("jweile/yogitools")
+install_github("jweile/cgir")
+install_github("VariantEffect/hgvsParseR")
+install_github("VariantEffect/rapimave")
+install_github("VariantEffect/mavevis")
+q()
 
 ```
 ### Using the R-package
@@ -101,3 +107,8 @@ Depending on the scoreset, the following parameters may also be required: `seqOf
 
 Finally, the following parameters are optional: `WT` is the WT sequence, which defaults to the one provided by MaveDB; `outFormats` is a comma-separated list of output file formats, with allowed values png, pdf, and svg; `pngRes` is the resolution (in DPI) to be used for any PNG output file.
 
+For example:
+
+```bash
+Rscript mavevis_launcher.R scoreset=00000003-b-2 uniprot=P38398 pdb=3COJ mainChain=A job=1
+```
